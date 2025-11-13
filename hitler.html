@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-900">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hiragana & Katakana Quiz</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Use Inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Style for the main character display */
+        .kana-char {
+            font-size: 10rem;
+            /* Large font size for the character */
+            line-height: 1;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        /* Custom focus styles for accessibility and design */
+        .form-input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.5);
+            outline: none;
+        }
+    </style>
+</head>
+
+<body class="h-full flex items-center justify-center p-4 bg-gray-900 text-gray-100">
+
+    <div id="app" class="w-full max-w-md mx-auto">
+        <h1 class="text-3xl font-bold text-center text-indigo-400 mb-6">Hiragana & Katakana Quiz</h1>
+
+        <!-- Mode Selection Screen -->
+        <div id="mode-selection" class="flex flex-col space-y-4">
+            <button id="hiragana-btn"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-200 shadow-lg">
+                Hiragana Quiz
+            </button>
+            <button id="katakana-btn"
+                class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-200 shadow-lg">
+                Katakana Quiz
+            </button>
+            <!-- Removed Mixed Quiz Button -->
+            <p class="text-center text-gray-400 text-sm pt-4">by Elijah M.</p>
+        </div>
+
+        <!-- Hiragana Row Selection (New) -->
+        <div id="hiragana-row-selection" class="hidden">
+            <h2 class="text-2xl font-bold text-center text-indigo-400 mb-4">Select Hiragana Rows</h2>
+            <div class="flex flex-col space-y-3">
+                <button id="quiz-all-hiragana-btn"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-200 shadow-lg">
+                    Quiz All Hiragana
+                </button>
+                <button id="quiz-main-hiragana-btn"
+                    class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-200 shadow-lg">
+                    Quiz Main Characters
+                </button>
+                <div id="hiragana-row-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    <!-- Hiragana row buttons will be injected here by JS -->
+                </div>
+                <button id="hiragana-back-btn"
+                    class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 mt-2">
+                    Back to Main Menu
+                </button>
+            </div>
+        </div>
+
+        <!-- Katakana Row Selection (New) -->
+        <div id="katakana-row-selection" class="hidden">
+            <h2 class="text-2xl font-bold text-center text-pink-400 mb-4">Select Katakana Rows</h2>
+            <div class="flex flex-col space-y-3">
+                <button id="quiz-all-katakana-btn"
+                    class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-200 shadow-lg">
+                    Quiz All Katakana
+                </button>
+                <button id="quiz-main-katakana-btn"
+                    class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-200 shadow-lg">
+                    Quiz Main Characters
+                </button>
+                <div id="katakana-row-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    <!-- Katakana row buttons will be injected here by JS -->
+                </div>
+                <button id="katakana-back-btn"
+                    class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 mt-2">
+                    Back to Main Menu
+                </button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen (Initially hidden) -->
+        <div id="quiz-screen" class="hidden">
+            <!-- Score and Stats -->
+            <div class="flex justify-between items-center mb-4 text-lg">
+                <div class="font-medium">Score: <span id="score" class="font-bold text-green-400">0</span></div>
+                <div class="font-medium">Progress: <span id="progress" class="font-bold text-indigo-400">0 / 0</span>
+                </div>
+            </div>
+
+            <!-- Main Character Display -->
+            <div class="bg-gray-800 rounded-lg shadow-2xl p-8 flex flex-col items-center">
+                <div id="char-display" class="kana-char">あ</div>
+
+                <!-- Answer Form -->
+                <form id="quiz-form" class="w-full">
+                    <label for="answer-input" class="block text-sm font-medium text-gray-300 mb-2 text-center">Type the
+                        romaji (letters)</label>
+                    <input type="text" id="answer-input" name="answer-input" autocomplete="off" autocorrect="off"
+                        autocapitalize="off" spellcheck="false"
+                        class="form-input w-full text-center text-2xl bg-gray-900 border-2 border-gray-700 text-white rounded-lg py-3 px-4 transition duration-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                        placeholder="e.g. 'ka'">
+                    <!-- The form submits on Enter, no button needed -->
+                </form>
+
+                <!-- Hint Button -->
+                <button type="button" id="hint-btn"
+                    class="w-1/2 mt-4 bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 text-sm">
+                    Show Hint
+                </button>
+
+                <!-- Hint Display -->
+                <div id="hint-display" class="mt-3 h-6 text-lg font-medium text-center text-yellow-400">&nbsp;</div>
+
+                <!-- Feedback Message -->
+                <div id="feedback" class="mt-2 h-6 text-lg font-medium text-center">&nbsp;</div>
+            </div>
+
+            <!-- Quit Button -->
+            <button id="quit-btn"
+                class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 mt-6">
+                Back to Menu
+            </button>
+        </div>
+
+        <!-- Final Score Screen (Initially hidden) -->
+        <div id="results-screen" class="hidden text-center">
+            <h2 class="text-2xl font-bold mb-4">Quiz Complete!</h2>
+            <div class="text-4xl font-bold mb-6">Final Score: <span id="final-score" class="text-green-400">0</span> /
+                <span id="total-questions">0</span></div>
+
+            <div class="flex flex-col space-y-4">
+                <button id="repeat-all-btn"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-200 shadow-lg">
+                    Repeat All
+                </button>
+                <button id="repeat-mistakes-btn"
+                    class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                    Practice Mistakes (0)
+                </button>
+                <button id="main-menu-btn"
+                    class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 mt-2">
+                    Back to Main Menu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        // Based on the provided PDF charts, using standard Hepburn romanization
+
+        const hiraganaData = {
+            'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o',
+            'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
+            'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
+            'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
+            'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no',
+            'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho',
+            'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
+            'や': 'ya', 'ゆ': 'yu', 'よ': 'yo',
+            'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro',
+            'わ': 'wa', 'を': 'wo',
+            'ん': 'n',
+            'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go',
+            'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo',
+            'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do',
+            'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
+            'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po',
+            'きゃ': 'kya', 'きゅ': 'kyu', 'きょ': 'kyo',
+            'しゃ': 'sha', 'しゅ': 'shu', 'しょ': 'sho',
+            'ちゃ': 'cha', 'ちゅ': 'chu', 'ちょ': 'cho',
+            'にゃ': 'nya', 'にゅ': 'nyu', 'にょ': 'nyo',
+            'ひゃ': 'hya', 'ひゅ': 'hyu', 'ひょ': 'hyo',
+            'みゃ': 'mya', 'みゅ': 'myu', 'みょ': 'myo',
+            'りゃ': 'rya', 'りゅ': 'ryu', 'りょ': 'ryo',
+            'ぎゃ': 'gya', 'ぎゅ': 'gyu', 'ぎょ': 'gyo',
+            'じゃ': 'ja', 'じゅ': 'ju', 'じょ': 'jo',
+            'びゃ': 'bya', 'びゅ': 'byu', 'びょ': 'byo',
+            'ぴゃ': 'pya', 'ぴゅ': 'pyu', 'ぴょ': 'pyo'
+        };
+
+        // Added missing Katakana data
+        const katakanaData = {
+            'ア': 'a', 'イ': 'i', 'ウ': 'u', 'エ': 'e', 'オ': 'o',
+            'カ': 'ka', 'キ': 'ki', 'ク': 'ku', 'ケ': 'ke', 'コ': 'ko',
+            'サ': 'sa', 'シ': 'shi', 'ス': 'su', 'セ': 'se', 'ソ': 'so',
+            'タ': 'ta', 'チ': 'chi', 'ツ': 'tsu', 'テ': 'te', 'ト': 'to',
+            'ナ': 'na', 'ニ': 'ni', 'ヌ': 'nu', 'ネ': 'ne', 'ノ': 'no',
+            'ハ': 'ha', 'ヒ': 'hi', 'フ': 'fu', 'ヘ': 'he', 'ホ': 'ho',
+            'マ': 'ma', 'ミ': 'mi', 'ム': 'mu', 'メ': 'me', 'モ': 'mo',
+            'ヤ': 'ya', 'ユ': 'yu', 'ヨ': 'yo',
+            'ラ': 'ra', 'リ': 'ri', 'ル': 'ru', 'レ': 're', 'ロ': 'ro',
+            'ワ': 'wa', 'ヲ': 'wo',
+            'ン': 'n',
+            'ガ': 'ga', 'ギ': 'gi', 'グ': 'gu', 'ゲ': 'ge', 'ゴ': 'go',
+            'ザ': 'za', 'ジ': 'ji', 'ズ': 'zu', 'ゼ': 'ze', 'ゾ': 'zo',
+            'ダ': 'da', 'ヂ': 'ji', 'ヅ': 'zu', 'デ': 'de', 'ド': 'do',
+            'バ': 'ba', 'ビ': 'bi', 'ブ': 'bu', 'ベ': 'be', 'ボ': 'bo',
+            'パ': 'pa', 'ピ': 'pi', 'プ': 'pu', 'ペ': 'pe', 'ポ': 'po',
+            'キャ': 'kya', 'キュ': 'kyu', 'キョ': 'kyo',
+            'シャ': 'sha', 'シュ': 'shu', 'ショ': 'sho',
+            'チャ': 'cha', 'チュ': 'chu', 'チョ': 'cho',
+            'ニャ': 'nya', 'ニュ': 'nyu', 'ニョ': 'nyo',
+            'ヒャ': 'hya', 'ヒュ': 'hyu', 'ヒョ': 'hyo',
+            'ミャ': 'mya', 'ミュ': 'myu', 'ミョ': 'myo',
+            'リャ': 'rya', 'リュ': 'ryu', 'リョ': 'ryo',
+            'ギャ': 'gya', 'ギュ': 'gyu', 'ギョ': 'gyo',
+            'ジャ': 'ja', 'ジュ': 'ju', 'ジョ': 'jo',
+            'ビャ': 'bya', 'ビュ': 'byu', 'ビョ': 'byo',
+            'ピャ': 'pya', 'ピュ': 'pyu', 'ピョ': 'pyo'
+        };
+
+        // --- New Row-based Data ---
+        const hiraganaRows = {
+            'A': ['あ', 'い', 'う', 'え', 'お'],
+            'Ka': ['か', 'き', 'く', 'け', 'こ'],
+            'Sa': ['さ', 'し', 'す', 'せ', 'そ'],
+            'Ta': ['た', 'ち', 'つ', 'て', 'と'],
+            'Na': ['な', 'に', 'ぬ', 'ね', 'の'],
+            'Ha': ['は', 'ひ', 'ふ', 'へ', 'ほ'],
+            'Ma': ['ま', 'み', 'む', 'め', 'も'],
+            'Ya': ['や', 'ゆ', 'よ'],
+            'Ra': ['ら', 'り', 'る', 'れ', 'ろ'],
+            'Wa': ['わ', 'を', 'ん'],
+            'Ga': ['が', 'ぎ', 'ぐ', 'げ', 'ご'],
+            'Za': ['ざ', 'じ', 'ず', 'ぜ', 'ぞ'],
+            'Da': ['だ', 'ぢ', 'づ', 'で', 'ど'],
+            'Ba': ['ば', 'び', 'ぶ', 'べ', 'ぼ'],
+            'Pa': ['ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ'],
+            'Kya': ['きゃ', 'きゅ', 'きょ'],
+            'Sha': ['しゃ', 'しゅ', 'しょ'],
+            'Cha': ['ちゃ', 'ちゅ', 'ちょ'],
+            'Nya': ['にゃ', 'にゅ', 'にょ'],
+            'Hya': ['ひゃ', 'ひゅ', 'ひょ'],
+            'Mya': ['みゃ', 'みゅ', 'みょ'],
+            'Rya': ['りゃ', 'りゅ', 'りょ'],
+            'Gya': ['ぎゃ', 'ぎゅ', 'ぎょ'],
+            'Ja': ['じゃ', 'じゅ', 'じょ'],
+            'Bya': ['びゃ', 'びゅ', 'びょ'],
+            'Pya': ['ぴゃ', 'ぴゅ', 'ぴょ']
+        };
+
+        const katakanaRows = {
+            'A': ['ア', 'イ', 'ウ', 'エ', 'オ'],
+            'Ka': ['カ', 'キ', 'ク', 'ケ', 'コ'],
+            'Sa': ['サ', 'シ', 'ス', 'セ', 'ソ'],
+            'Ta': ['タ', 'チ', 'ツ', 'テ', 'ト'],
+            'Na': ['ナ', 'ニ', 'ヌ', 'ネ', 'ノ'],
+            'Ha': ['ハ', 'ヒ', 'フ', 'ヘ', 'ホ'],
+            'Ma': ['マ', 'ミ', 'ム', 'メ', 'モ'],
+            'Ya': ['ヤ', 'ユ', 'ヨ'],
+            'Ra': ['ラ', 'リ', 'ル', 'レ', 'ロ'],
+            'Wa': ['ワ', 'ヲ', 'ン'],
+            'Ga': ['ガ', 'ギ', 'グ', 'ゲ', 'ゴ'],
+            'Za': ['ザ', 'ジ', 'ズ', 'ゼ', 'ゾ'],
+            'Da': ['ダ', 'ヂ', 'ヅ', 'デ', 'ド'],
+            'Ba': ['バ', 'ビ', 'ブ', 'ベ', 'ボ'],
+            'Pa': ['パ', 'ピ', 'プ', 'ペ', 'ポ'],
+            'Kya': ['キャ', 'キュ', 'キョ'],
+            'Sha': ['シャ', 'シュ', 'ショ'],
+            'Cha': ['チャ', 'チュ', 'チョ'],
+            'Nya': ['ニャ', 'ニュ', 'ニョ'],
+            'Hya': ['ヒャ', 'ヒュ', 'ヒョ'],
+            'Mya': ['ミャ', 'ミュ', 'ミョ'],
+            'Rya': ['リャ', 'リュ', 'リョ'],
+            'Gya': ['ギャ', 'ギュ', 'ギョ'],
+            'Ja': ['ジャ', 'ジュ', 'ジョ'],
+            'Bya': ['ビャ', 'ビュ', 'ビョ'],
+            'Pya': ['ピャ', 'ピュ', 'ピョ']
+        };
+
+        // --- New Main Character Lists ---
+        const mainRows = ['A', 'Ka', 'Sa', 'Ta', 'Na', 'Ha', 'Ma', 'Ya', 'Ra', 'Wa'];
+
+        const mainHiraganaChars = mainRows.reduce((acc, rowKey) => {
+            return acc.concat(hiraganaRows[rowKey]);
+        }, []);
+
+        const mainKatakanaChars = mainRows.reduce((acc, rowKey) => {
+            return acc.concat(katakanaRows[rowKey]);
+        }, []);
+
+        // --- DOM Elements ---
+        const modeSelection = document.getElementById('mode-selection');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+
+        // New Row Selection Screens
+        const hiraganaRowSelection = document.getElementById('hiragana-row-selection');
+        const katakanaRowSelection = document.getElementById('katakana-row-selection');
+        const hiraganaRowGrid = document.getElementById('hiragana-row-grid');
+        const katakanaRowGrid = document.getElementById('katakana-row-grid');
+        const hiraganaBackBtn = document.getElementById('hiragana-back-btn');
+        const katakanaBackBtn = document.getElementById('katakana-back-btn');
+        const quizAllHiraganaBtn = document.getElementById('quiz-all-hiragana-btn');
+        const quizAllKatakanaBtn = document.getElementById('quiz-all-katakana-btn');
+        const quizMainHiraganaBtn = document.getElementById('quiz-main-hiragana-btn');
+        const quizMainKatakanaBtn = document.getElementById('quiz-main-katakana-btn');
+
+        const hiraganaBtn = document.getElementById('hiragana-btn');
+        const katakanaBtn = document.getElementById('katakana-btn');
+        // const mixedBtn = document.getElementById('mixed-btn'); // Removed
+        const quitBtn = document.getElementById('quit-btn');
+
+        // Renamed/added result screen buttons
+        const repeatAllBtn = document.getElementById('repeat-all-btn');
+        const repeatMistakesBtn = document.getElementById('repeat-mistakes-btn');
+        const mainMenuBtn = document.getElementById('main-menu-btn');
+
+        const scoreEl = document.getElementById('score');
+        const progressEl = document.getElementById('progress');
+        const charDisplay = document.getElementById('char-display');
+        const quizForm = document.getElementById('quiz-form');
+        const answerInput = document.getElementById('answer-input');
+        const feedback = document.getElementById('feedback');
+
+        const finalScoreEl = document.getElementById('final-score');
+        const totalQuestionsEl = document.getElementById('total-questions');
+
+        // New DOM elements for Hint
+        const hintBtn = document.getElementById('hint-btn');
+        const hintDisplay = document.getElementById('hint-display');
+
+        // --- State ---
+        let currentQuizData = {};
+        let quizBank = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let totalQuestions = 0;
+        let hintRevealed = ''; // State for the hint
+        let masterPracticeList = []; // For mistakes and hints across rounds
+        let currentPracticeList = []; // For mistakes and hints in the *current* round
+        let currentMode = ''; // To remember the last quiz mode
+        let isPracticeRound = false; // To track if we are in a 'practice mistakes' round
+
+        // --- Functions ---
+
+        /**
+         * Populates the row selection grids with buttons.
+         */
+        function populateRowGrids() {
+            // Base classes for row buttons
+            const hiraBtnClass = "w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-3 rounded-lg text-sm transition duration-150";
+            const kataBtnClass = "w-full bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-3 rounded-lg text-sm transition duration-150";
+
+            // Populate Hiragana
+            for (const rowKey in hiraganaRows) {
+                const btn = document.createElement('button');
+                btn.textContent = rowKey;
+                btn.className = hiraBtnClass;
+                btn.dataset.row = rowKey;
+                hiraganaRowGrid.appendChild(btn);
+            }
+
+            // Populate Katakana
+            for (const rowKey in katakanaRows) {
+                const btn = document.createElement('button');
+                btn.textContent = rowKey;
+                btn.className = kataBtnClass;
+                btn.dataset.row = rowKey;
+                katakanaRowGrid.appendChild(btn);
+            }
+        }
+
+        /**
+         * Shuffles an array in place.
+         * @param {Array} array The array to shuffle.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        /**
+         * Starts the quiz based on the selected mode.
+         * @param {string} mode - 'hiragana', 'katakana', or 'mixed'
+         * @param {Array|null} customBank - Optional array of characters to use as the quiz bank.
+         */
+        function startQuiz(mode, customBank = null) {
+            currentMode = mode; // Remember the mode
+            isPracticeRound = (customBank !== null); // Check if this is a practice round
+
+            // 1. Set up quiz data
+            if (mode === 'hiragana') {
+                currentQuizData = { ...hiraganaData };
+            } else if (mode === 'katakana') {
+                currentQuizData = { ...katakanaData };
+            }
+            // Removed 'mixed' mode logic
+
+            // 2. Create and shuffle quiz bank
+            // Use the custom bank if provided (for repeating mistakes), otherwise create a full bank
+            quizBank = customBank ? [...customBank] : Object.keys(currentQuizData);
+            shuffleArray(quizBank);
+
+            // 3. Reset state
+            currentQuestionIndex = 0;
+            score = 0;
+            totalQuestions = quizBank.length;
+
+            if (!isPracticeRound) {
+                masterPracticeList = []; // Clear master list if this is a new, full quiz
+            }
+            currentPracticeList = []; // Always clear mistakes for the *current* round
+
+            // 4. Update UI
+            modeSelection.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            hiraganaRowSelection.classList.add('hidden'); // Hide row screen
+            katakanaRowSelection.classList.add('hidden'); // Hide row screen
+            quizScreen.classList.remove('hidden');
+
+            updateScoreboard();
+            loadNextQuestion();
+            answerInput.focus();
+        }
+
+        /**
+         * Loads the next question or ends the quiz.
+         */
+        function loadNextQuestion() {
+            // Clear previous feedback and input
+            feedback.innerHTML = '&nbsp;';
+            feedback.className = 'mt-4 h-6 text-lg font-medium text-center';
+            answerInput.value = '';
+            answerInput.disabled = false;
+            answerInput.focus();
+
+            // Reset hint
+            hintRevealed = '';
+            hintDisplay.innerHTML = '&nbsp;';
+            hintBtn.disabled = false;
+
+            if (currentQuestionIndex < totalQuestions) {
+                // Load next question
+                const char = quizBank[currentQuestionIndex];
+                charDisplay.textContent = char;
+                updateScoreboard();
+            } else {
+                // End of quiz
+                showResults();
+            }
+        }
+
+        /**
+         * Updates the score and progress display.
+         */
+        function updateScoreboard() {
+            scoreEl.textContent = score;
+            progressEl.textContent = `${currentQuestionIndex + 1} / ${totalQuestions}`;
+        }
+
+        /**
+         * Handles the answer submission.
+         * @param {Event} e - The form submit event.
+         */
+        function handleAnswerSubmit(e) {
+            e.preventDefault();
+            if (answerInput.disabled) return; // Don't process if already answered
+
+            const userAnswer = answerInput.value.trim().toLowerCase();
+            const correctChar = quizBank[currentQuestionIndex];
+            const correctAnswer = currentQuizData[correctChar];
+
+            if (userAnswer === correctAnswer) {
+                // Correct answer
+                score++;
+                feedback.textContent = 'Correct!';
+                feedback.className = 'mt-4 h-6 text-lg font-bold text-center text-green-400';
+            } else {
+                // Incorrect answer
+                feedback.innerHTML = `Incorrect! Answer: <span class="font-bold text-yellow-400">${correctAnswer}</span>`;
+                feedback.className = 'mt-4 h-6 text-lg font-medium text-center text-red-400';
+                // Add to practice list for the current round
+                if (!currentPracticeList.includes(correctChar)) {
+                    currentPracticeList.push(correctChar);
+                }
+            }
+
+            // Update score display immediately
+            scoreEl.textContent = score;
+
+            // Disable input and wait a moment before next question
+            answerInput.disabled = true;
+            hintBtn.disabled = true; // Disable hint button after answering
+            currentQuestionIndex++;
+
+            setTimeout(() => {
+                loadNextQuestion();
+            }, 1200);
+        }
+
+        /**
+         * Displays the final results screen.
+         */
+        function showResults() {
+            // The new master list IS the list of mistakes from the round just completed
+            masterPracticeList = [...currentPracticeList];
+
+            finalScoreEl.textContent = score;
+            totalQuestionsEl.textContent = totalQuestions;
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+
+            // Update and enable/disable the 'Practice Mistakes' button based on the new master list
+            repeatMistakesBtn.textContent = `Practice Mistakes (${masterPracticeList.length})`;
+            if (masterPracticeList.length === 0) {
+                repeatMistakesBtn.disabled = true;
+            } else {
+                repeatMistakesBtn.disabled = false;
+            }
+        }
+
+        /**
+         * Resets the app to the main menu.
+         */
+        function showMenu() {
+            resultsScreen.classList.add('hidden');
+            quizScreen.classList.add('hidden');
+            hiraganaRowSelection.classList.add('hidden'); // Hide row screen
+            katakanaRowSelection.classList.add('hidden'); // Hide row screen
+            modeSelection.classList.remove('hidden');
+        }
+
+        /**
+         * Shows a hint for the current question.
+         */
+        function showHint() {
+            const correctChar = quizBank[currentQuestionIndex];
+            const correctAnswer = currentQuizData[correctChar];
+
+            // Add to practice list on first hint use for this item
+            if (hintRevealed === '' && !currentPracticeList.includes(correctChar)) {
+                currentPracticeList.push(correctChar);
+            }
+
+            if (hintRevealed === '') {
+                // First hint: show first letter and dots for the rest
+                hintRevealed = correctAnswer[0] + '.'.repeat(correctAnswer.length - 1);
+            } else if (hintRevealed !== correctAnswer) {
+                // Subsequent hints: reveal next letter
+                let nextDotIndex = hintRevealed.indexOf('.');
+                if (nextDotIndex !== -1) {
+                    let hintArray = hintRevealed.split('');
+                    hintArray[nextDotIndex] = correctAnswer[nextDotIndex];
+                    hintRevealed = hintArray.join('');
+                }
+            }
+
+            hintDisplay.textContent = hintRevealed;
+
+            // Disable button if full answer is revealed
+            if (hintRevealed === correctAnswer) {
+                hintBtn.disabled = true;
+            }
+        }
+
+        // --- Event Listeners ---
+        // Main Menu
+        hiraganaBtn.addEventListener('click', () => {
+            modeSelection.classList.add('hidden');
+            hiraganaRowSelection.classList.remove('hidden');
+        });
+        katakanaBtn.addEventListener('click', () => {
+            modeSelection.classList.add('hidden');
+            katakanaRowSelection.classList.remove('hidden');
+        });
+        // mixedBtn.addEventListener('click', () => startQuiz('mixed')); // Removed
+
+        // Hiragana Row Selection Screen
+        hiraganaBackBtn.addEventListener('click', showMenu);
+        quizAllHiraganaBtn.addEventListener('click', () => startQuiz('hiragana'));
+        quizMainHiraganaBtn.addEventListener('click', () => startQuiz('hiragana', mainHiraganaChars));
+        hiraganaRowGrid.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (btn && btn.dataset.row) {
+                const rowKey = btn.dataset.row;
+                startQuiz('hiragana', hiraganaRows[rowKey]);
+            }
+        });
+
+        // Katakana Row Selection Screen
+        katakanaBackBtn.addEventListener('click', showMenu);
+        quizAllKatakanaBtn.addEventListener('click', () => startQuiz('katakana'));
+        quizMainKatakanaBtn.addEventListener('click', () => startQuiz('katakana', mainKatakanaChars));
+        katakanaRowGrid.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (btn && btn.dataset.row) {
+                const rowKey = btn.dataset.row;
+                startQuiz('katakana', katakanaRows[rowKey]);
+            }
+        });
+
+        // Quiz Screen
+        quizForm.addEventListener('submit', handleAnswerSubmit);
+        quitBtn.addEventListener('click', showMenu);
+        hintBtn.addEventListener('click', showHint);
+
+        // Results Screen
+        repeatAllBtn.addEventListener('click', () => startQuiz(currentMode));
+        repeatMistakesBtn.addEventListener('click', () => startQuiz(currentMode, masterPracticeList));
+        mainMenuBtn.addEventListener('click', showMenu);
+
+        // --- Initialization ---
+        populateRowGrids(); // Call the function to create the row buttons
+
+    </script>
+</body>
+
+</html>
